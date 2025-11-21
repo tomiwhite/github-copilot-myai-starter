@@ -1,4 +1,5 @@
 *.temp*
+!.env.template
 
 # Compiled source #
 ###################
