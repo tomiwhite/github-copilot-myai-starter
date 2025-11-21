@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # Backend API service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: myai-starter-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CORS_ORIGINS=["http://localhost:8000","http://localhost:3000"]
+    volumes:
+      # Mount for development hot-reload
+      - ./backend/app:/app/app
+      - ./frontend/public:/app/frontend/public
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL database (optional - uncomment when needed)
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: myai-starter-db
+  #   environment:
+  #     - POSTGRES_DB=myai_starter
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+  # Redis cache (optional - uncomment when needed)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: myai-starter-redis
+  #   ports:
+  #     - "6379:6379"
+  #   restart: unless-stopped
+  #   command: redis-server --appendonly yes
+  #   volumes:
+  #     - redis_data:/data
+
+# Volumes for persistent data
+# volumes:
+#   postgres_data:
+#   redis_data:
+
+networks:
+  default:
+    name: myai-starter-network

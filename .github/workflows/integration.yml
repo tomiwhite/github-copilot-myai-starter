@@ -1,0 +1,72 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Start backend server
+      run: |
+        cd backend
+        python -m app.main &
+        sleep 5
+      env:
+        DEBUG: "False"
+
+    - name: Wait for server to be ready
+      run: |
+        timeout 30 bash -c 'until curl -f http://localhost:8000/api/v1/health; do sleep 2; done'
+
+    - name: Test API endpoints
+      run: |
+        # Test health endpoint
+        curl -f http://localhost:8000/api/v1/health || exit 1
+        
+        # Test ready endpoint
+        curl -f http://localhost:8000/api/v1/ready || exit 1
+        
+        # Test info endpoint
+        curl -f http://localhost:8000/info || exit 1
+        
+        # Test items endpoint
+        curl -f http://localhost:8000/api/v1/items || exit 1
+        
+        echo "All integration tests passed!"
+
+    - name: Test frontend is accessible
+      run: |
+        # Test that static files are served
+        curl -f http://localhost:8000/static/index.html || exit 1
+        curl -f http://localhost:8000/static/app.js || exit 1
+        curl -f http://localhost:8000/static/styles.css || exit 1
+        
+        echo "Frontend accessibility tests passed!"
+
+    - name: Test API documentation
+      run: |
+        # Test Swagger UI
+        curl -f http://localhost:8000/api/v1/docs || exit 1
+        
+        # Test OpenAPI spec
+        curl -f http://localhost:8000/api/v1/openapi.json || exit 1
+        
+        echo "API documentation tests passed!"
