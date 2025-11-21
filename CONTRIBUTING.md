@@ -20,13 +20,13 @@ Please be respectful and constructive in all interactions. We aim to foster an o
 
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/github-copilot-myai-starter.git
-   cd github-copilot-myai-starter
+   git clone https://github.com/YOUR-USERNAME/YOUR-REPO-NAME.git
+   cd YOUR-REPO-NAME
    ```
 
 3. Add the upstream repository:
    ```bash
-   git remote add upstream https://github.com/ORIGINAL-OWNER/github-copilot-myai-starter.git
+   git remote add upstream https://github.com/ORIGINAL-OWNER/YOUR-REPO-NAME.git
    ```
 
 4. Create a virtual environment:

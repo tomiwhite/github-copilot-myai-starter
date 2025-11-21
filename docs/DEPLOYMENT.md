@@ -20,8 +20,8 @@ This guide covers various deployment options for the myAI Starter Application.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/tomiwhite/github-copilot-myai-starter.git
-   cd github-copilot-myai-starter
+   git clone https://github.com/YOUR-USERNAME/YOUR-REPO-NAME.git
+   cd YOUR-REPO-NAME
    ```
 
 2. Set up environment:
