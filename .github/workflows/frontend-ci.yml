@@ -1,0 +1,88 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Validate HTML
+      run: |
+        echo "Validating HTML files..."
+        # Check for basic HTML structure
+        grep -r "<!DOCTYPE html>" frontend/public/*.html || (echo "Missing DOCTYPE" && exit 1)
+        grep -r "<html" frontend/public/*.html || (echo "Missing html tag" && exit 1)
+        echo "HTML validation passed!"
+
+    - name: Validate JavaScript
+      run: |
+        echo "Validating JavaScript files..."
+        # Check for syntax errors (basic validation)
+        for file in frontend/public/*.js; do
+          node -c "$file" || exit 1
+        done
+        echo "JavaScript validation passed!"
+
+    - name: Check CSS
+      run: |
+        echo "Validating CSS files..."
+        # Check CSS files exist
+        ls frontend/public/*.css || (echo "CSS files not found" && exit 1)
+        echo "CSS validation passed!"
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install htmlhint (optional linting)
+      run: npm install -g htmlhint || true
+
+    - name: Lint HTML files (if htmlhint available)
+      run: |
+        if command -v htmlhint &> /dev/null; then
+          htmlhint frontend/public/*.html || true
+        else
+          echo "Skipping HTML linting - htmlhint not available"
+        fi
+
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check for common security issues
+      run: |
+        echo "Checking for security issues in frontend code..."
+        # Check for eval() usage
+        if grep -r "eval(" frontend/public/*.js; then
+          echo "Warning: Found eval() usage - potential security risk"
+        fi
+        # Check for innerHTML usage (XSS risk)
+        if grep -r "innerHTML" frontend/public/*.js; then
+          echo "Warning: Found innerHTML usage - ensure proper sanitization"
+        fi
+        echo "Security check completed!"
